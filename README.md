@@ -1,6 +1,6 @@
 # Launch · Application V1
 
-Application React mobile-first en français. Cette première tranche initialise le frontend et les écrans avec des **données fictives**. Le pack de conception original reste intact dans [`LAUNCH_pack_Codex_references_concepts/`](LAUNCH_pack_Codex_references_concepts/README.md).
+Application React mobile-first en français. Le frontend dispose de Supabase Auth et de profils privés réels ; les cartes et activités restent des **données fictives**. Le pack de conception original reste intact dans [`LAUNCH_pack_Codex_references_concepts/`](LAUNCH_pack_Codex_references_concepts/README.md).
 
 ## Lancer
 
@@ -30,7 +30,7 @@ npm run test:e2e
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e
 ```
 
-Playwright démarre Vite lui-même. Les projets couvrent 360/375/390/430 px et le bureau à 1280 px. Les captures des six écrans à 390 px sont générées dans `test-results/` (ignoré par Git). Les tests vérifient navigation, filtres, fichier inconnu, suppression de sélection, carte verrouillée, rechargement, sortie de démo, routes inconnues, hors-ligne et absence de requêtes Supabase.
+Playwright démarre Vite lui-même. Les projets couvrent 360/375/390/430 px et le bureau à 1280 px. Les captures des six écrans à 390 px sont générées dans `test-results/` (ignoré par Git). Les tests vérifient navigation, filtres, fichier inconnu, suppression de sélection, carte verrouillée, rechargement, sortie de démo, routes inconnues, hors-ligne et absence de requêtes réelles depuis la démo. Les parcours Auth/profil utilisent le SDK réel et des réponses Supabase simulées.
 
 ## Structure
 
@@ -40,24 +40,31 @@ Playwright démarre Vite lui-même. Les projets couvrent 360/375/390/430 px et l
 - `src/lib` : fixtures explicites, formatage SI/UTC, utilitaires et client Supabase à activation explicite.
 - `src/index.css` : Tailwind CSS 4, tokens et composants mobile-first ; safe areas, focus visible et mouvement réduit.
 - `public/art` : illustrations SVG originales, remplaçables, avec manifeste de provenance.
-- `supabase` : emplacements réservés ; aucune migration ni fonction ajoutée.
+- `supabase` : migration versionnée des profils/sports et tests SQL d’isolation.
 - `tests` : setup Vitest et parcours Playwright. Tests de composants près du code.
 
 ## Parcours livrés
 
-Bienvenue `/`, information connexion `/auth`, accueil `/app`, collections `/collections` et `/collections/:sportSlug`, carte `/cards/:cardId`, activités `/activities` et `/activities/:id`, import `/import` (alias `/activities/import`), profil `/profile`.
+Bienvenue `/`, connexion `/auth` et inscription `/auth/signup`, accueil `/app`, collections `/collections` et `/collections/:sportSlug`, carte `/cards/:cardId`, activités `/activities` et `/activities/:id`, import `/import` (alias `/activities/import`), profil `/profile`.
 
 Quatre onglets : Accueil, Collections, Activités, Profil. Les quatre sports sont disponibles sans sélection à l’inscription. Le reveal est un composant préparatoire testé, sans route publique ni attribution de récompense.
 
-## Supabase et limites
+## Supabase Auth et profils
 
-Le SDK est installé et la factory `getSupabaseClient` est préparée, mais **jamais appelée par la démo**. Pour une prochaine mission, copier `.env.example` vers `.env.local` et renseigner uniquement l’URL du projet et sa clé publique/publishable. Ces valeurs frontend ne sont pas des secrets. Ne jamais y placer un jeton de gestion, une clé secrète ou service-role. Les véritables secrets restent dans les paramètres sécurisés Codex Cloud/backend.
+Voir [la documentation Mission 02](docs/auth-and-profiles.md) pour la migration appliquée, les droits, les tests et la configuration email.
 
-Le projet `Launch dev` précédemment vérifié a pour ref `kephzbvcbmjzqqvqgtav`. Cette mission n’a exécuté aucune commande Supabase et n’a modifié ni base, ni utilisateurs, ni Storage, ni Edge Functions.
+Copier `.env.example` vers `.env.local` et renseigner uniquement l’URL du projet et sa clé publique/publishable. Le projet de développement est `Launch dev`, ref `kephzbvcbmjzqqvqgtav`. Les jetons de gestion, clés secrètes et service-role sont interdits dans les variables frontend.
 
-La sélection de fichiers est un inventaire local des noms/tailles/extensions. Elle ne lit pas le contenu, ne valide pas les signatures, ne décompresse pas, ne détecte pas les doublons et ne téléverse rien. L’analyse et la saisie manuelle sont explicitement désactivées. Les seuils et raretés du catalogue sont fictifs, sans moteur d’attribution côté client.
+Les pages `/auth`, `/auth/signup`, `/auth/forgot-password`, `/auth/callback` et `/auth/update-password` gèrent les parcours email/mot de passe et les sessions PKCE. `/profile` lit et modifie le profil de l’utilisateur connecté sous RLS. Aucun choix des sports à l’inscription : les quatre sports sont présents dans le catalogue.
 
-L’authentification réelle, les policies RLS/GRANT, l’ingestion, les migrations, le stockage privé, les consentements et la suppression/export de données seront livrés séparément. Aucun avatar 3D, boutique, social ou connecteur Garmin/Strava.
+La démo sans compte reste disponible. Les cartes/activités sont fictives même pour un utilisateur connecté ; aucun moteur de récompenses client. L’import reste un inventaire local de fichiers, sans analyse ni téléversement. Aucun avatar 3D, boutique, social ou connecteur Garmin/Strava.
+
+```sh
+# Tests PostgreSQL RLS isolés inclus dans Vitest :
+npm test
+# Tests sur launch-dev, fixtures intégralement annulées :
+python3 scripts/supabase-dev.py test
+```
 
 ## Déploiement futur
 

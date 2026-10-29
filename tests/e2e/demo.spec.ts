@@ -6,7 +6,8 @@ test("parcours démo, collections, activité, import et profil", async ({
   const backend: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("request", (r) => {
-    if (r.url().includes("supabase.")) backend.push(r.url());
+    if (new URL(r.url()).hostname.endsWith("supabase.co"))
+      backend.push(r.url());
   });
   await page.goto("/");
   await page.getByRole("button", { name: "Explorer la démo" }).click();
@@ -88,13 +89,16 @@ test("parcours démo, collections, activité, import et profil", async ({
       name: "Analyse disponible dans une prochaine étape",
     }),
   ).toBeDisabled();
-  await page.getByRole("button", { name: "Effacer la sélection" }).click();
+  // Keyboard activation also verifies that this control remains accessible.
+  await page
+    .getByRole("button", { name: "Effacer la sélection" })
+    .press("Enter");
   await expect(page.getByText("sortie.gpx")).toHaveCount(0);
   await page.goto("/profile");
   await page.getByRole("button", { name: "Quitter la démo" }).click();
-  await expect(page).toHaveURL(/\/auth$/);
+  await expect(page).toHaveURL(/\/auth(?:\?.*)?$/);
   await page.goto("/collections");
-  await expect(page).toHaveURL(/\/auth$/);
+  await expect(page).toHaveURL(/\/auth(?:\?.*)?$/);
   expect(errors).toEqual([]);
   expect(backend).toEqual([]);
 });

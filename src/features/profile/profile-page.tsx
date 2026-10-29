@@ -4,9 +4,13 @@ import { PageHeader } from "@/components/ui/states";
 import { Button } from "@/components/ui/button";
 import type { DemoData } from "@/lib/demo";
 import { distance, duration } from "@/lib/utils";
+import { AccountProfile } from "./account-profile";
+import { useAuth } from "@/features/auth/auth-context";
 import { useDemoSession } from "@/features/auth/demo-session";
 export function ProfilePage({ data }: { data: DemoData }) {
   const { leave } = useDemoSession();
+  const { session } = useAuth();
+  if (session) return <AccountProfile />;
   return (
     <>
       <PageHeader

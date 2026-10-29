@@ -1,5 +1,5 @@
-# Backend réservé à une prochaine mission
+# Launch dev — Auth et profils
 
-Les dossiers `migrations/` et `functions/` accueilleront le backend versionné. Aucune migration ni fonction n’est livrée ou appliquée dans cette mission UI. Aucun accès distant n’est exécuté par l’application de démo.
+Projet : `kephzbvcbmjzqqvqgtav` (Launch dev). Migration additive `20261029000100_profiles_and_sports.sql` appliquée après validation locale et distante annulée.
 
-Projet de développement précédemment vérifié : `kephzbvcbmjzqqvqgtav` (Launch dev). Ne jamais exécuter `db push`, `db reset`, un déploiement ou une mutation distante sans autorisation adaptée. Prévoir tests RLS/GRANT entre deux comptes et Storage privé avant de connecter des données réelles.
+Voir [`docs/auth-and-profiles.md`](../docs/auth-and-profiles.md) pour les droits, redirections Auth, commandes et limites de validation. Les tests SQL dans `tests/auth_profiles.sql` annulent systématiquement leurs fixtures. Aucun reset ni opération de production dans cette mission.
