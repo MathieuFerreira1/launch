@@ -78,3 +78,16 @@ L’avatar est une URL HTTPS facultative, pas un upload. Son chargement est anno
 - Build : réussi. Vite signale un chunk de 667 Ko minifié (environ 195 Ko gzip) après ajout du SDK ; découpage différé des dépendances à envisager avant production, sans masquer l’avertissement.
 - Playwright : **29 tests réussis sur 30** lors de la passe complète. Le seul échec était une erreur de protocole Chromium système à `page.reload` (`Not attached to an active page`), sans assertion métier échouée. Ce cas exact a été rejoué seul avec un worker : **1/1 réussi**. Les 30 scénarios ont ainsi été validés, dont les 20 parcours Auth/profil sur cinq formats. Aucun retry automatique ni assertion désactivée.
 - Captures [connexion](screenshots/auth-login.png), [inscription](screenshots/auth-signup.png) et [profil éditable](screenshots/auth-profile.png) à 390 px inspectées : tokens, surfaces et navigation Mission 01 conservés.
+
+## Cloudflare Workers Builds / previews
+
+Le Worker Cloudflare associé au dépôt est `launch-dev`. La configuration `wrangler.jsonc` déclare les assets Vite dans `dist`, le fallback SPA pour les liens directs React Router (`/auth/callback`, `/profile`, etc.) et un bloc `previews` pour la commande `npx wrangler preview` configurée sur les branches de PR. Wrangler est épinglé dans les dépendances de développement pour éviter de télécharger une version différente à chaque build.
+
+Commandes Cloudflare : build `npm run build`, preview de branche `npx wrangler preview`. La commande de déploiement principal existante est à conserver ; aucune publication manuelle effectuée par les commandes de validation ci-dessous.
+
+```sh
+npm run build
+npm run check:cloudflare
+```
+
+La seconde commande prépare le déploiement en `--dry-run` sans jeton ni publication. Elle est aussi exécutée par la CI. Les variables publiques `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY` doivent être disponibles **au moment du build Cloudflare**, puis la nouvelle URL de preview doit être autorisée dans les redirections Supabase Auth si l’authentification y est testée. Ne pas ajouter de clé service_role ou de jeton de gestion dans la configuration Wrangler ou dans les variables `VITE_*`.
