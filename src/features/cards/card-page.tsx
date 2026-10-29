@@ -5,7 +5,13 @@ import { EmptyState } from "@/components/ui/states";
 import { AchievementCard } from "./achievement-card";
 import type { DemoData } from "@/lib/demo";
 import { date, distance } from "@/lib/utils";
-export function CardPage({ data }: { data: DemoData }) {
+export function CardPage({
+  data,
+  activityBasePath = "/activities",
+}: {
+  data: DemoData;
+  activityBasePath?: string;
+}) {
   const { cardId } = useParams();
   const card = data.cards.find((c) => c.id === cardId);
   if (!card)
@@ -44,7 +50,7 @@ export function CardPage({ data }: { data: DemoData }) {
           </div>
           {card.activityId && (
             <Button asChild variant="outline">
-              <Link to={`/activities/${card.activityId}`}>
+              <Link to={`${activityBasePath}/${card.activityId}`}>
                 Voir l’activité associée
               </Link>
             </Button>

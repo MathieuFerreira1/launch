@@ -43,9 +43,27 @@ def verify_project():
     print(f'Projet confirmé : Launch dev ({REF}).')
 
 def main():
+    global VERSION, MIGRATION, TESTS
     parser = argparse.ArgumentParser()
     parser.add_argument('action', choices=['validate', 'test', 'apply'])
+    parser.add_argument('--mission', choices=['auth', 'imports', 'storage', 'lifecycle', 'classification'], default='auth')
     args = parser.parse_args()
+    if args.mission == 'imports':
+        VERSION = '20261029000200'
+        MIGRATION = ROOT / 'supabase/migrations/20261029000200_activity_imports.sql'
+        TESTS = ROOT / 'supabase/tests/activity_imports.sql'
+    if args.mission == 'storage':
+        VERSION = '20261029000300'
+        MIGRATION = ROOT / 'supabase/migrations/20261029000300_storage_upload_preflight.sql'
+        TESTS = ROOT / 'supabase/tests/activity_imports.sql'
+    if args.mission == 'lifecycle':
+        VERSION = '20261029000400'
+        MIGRATION = ROOT / 'supabase/migrations/20261029000400_import_deletion_lifecycle.sql'
+        TESTS = ROOT / 'supabase/tests/activity_imports.sql'
+    if args.mission == 'classification':
+        VERSION = '20261029000500'
+        MIGRATION = ROOT / 'supabase/migrations/20261029000500_classification_review_guards.sql'
+        TESTS = ROOT / 'supabase/tests/activity_imports.sql'
     verify_project()
     migration = MIGRATION.read_text()
     if args.action == 'validate':
@@ -68,7 +86,7 @@ create schema if not exists supabase_migrations;
 create table if not exists supabase_migrations.schema_migrations
 (version text not null primary key, statements text[], name text);
 insert into supabase_migrations.schema_migrations(version,statements,name)
-values ('{VERSION}',array[{literal}],'profiles_and_sports');
+values ('{VERSION}',array[{literal}],'{MIGRATION.stem.split('_', 1)[1]}');
 """
         sql('begin;\n' + migration + '\n' + history_sql + '\ncommit;')
         print('Migration additive appliquée et enregistrée dans l’historique Supabase.')

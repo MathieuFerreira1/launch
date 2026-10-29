@@ -9,3 +9,6 @@ coverage/
 *.local
 
 .wrangler/
+
+__pycache__/
+*.pyc
