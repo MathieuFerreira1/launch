@@ -1,0 +1,86 @@
+[
+  {
+    "path": "design/README_MAQUETTES.md",
+    "size_bytes": 5882,
+    "sha256": "f69ec2ff01ce1c0825299b43416bcd568ada7887279785e3943661a775e2fb97",
+    "purpose": "design_guidance",
+    "production_ready": false
+  },
+  {
+    "path": "design/REFERENCES_VISUELLES_PRIORITAIRES.md",
+    "size_bytes": 7240,
+    "sha256": "235447741b4b33b6e3031996904f201d4dcd05621a3533b82fb896310bf22a9f",
+    "purpose": "design_guidance",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/README.md",
+    "size_bytes": 927,
+    "sha256": "a3052375a82c87213f6714ed16893a512860e2ddf0308969d0704556989489fd",
+    "purpose": "design_guidance",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/01_onboarding_4_ecrans.png",
+    "size_bytes": 1734156,
+    "sha256": "d741127d0a013b0c5b88b8dd531c1b5c303117845361cf23987b42530f7e74c9",
+    "purpose": "visual_reference_priority",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/02_parcours_v1_avatar_details.png",
+    "size_bytes": 1765724,
+    "sha256": "80a533da241d2cbc354d253be6e58947e24744504cf309da12ef1dba448d4fcd",
+    "purpose": "visual_reference_priority",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/03_avatar_vestiaire_et_collection.png",
+    "size_bytes": 1798281,
+    "sha256": "7cbce4b3c0d976b422754791f5306547e965764089d4fa764ae977d82634b838",
+    "purpose": "visual_reference_priority",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/04_parcours_et_vision_sociale.png",
+    "size_bytes": 1828057,
+    "sha256": "94838c1c6b91e9ca5dc2af3c74b949039fc804148da7038753a8a4d0574d3492",
+    "purpose": "visual_reference_priority",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/05_vues_completes_12_ecrans.png",
+    "size_bytes": 1816064,
+    "sha256": "51efeb111bb8d576a0d646c85cec46b064945fe12d9da609c955e2d2c8a8bc3e",
+    "purpose": "visual_reference_priority",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/ecrans_individuels/accueil_reference_detaillee.png",
+    "size_bytes": 1435970,
+    "sha256": "3a9c8fb8b95c2919a937969a4af9bd2b6f9b65cb5482139b948c4abd18f77396",
+    "purpose": "visual_reference_priority",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/ecrans_individuels/collection_reference_detaillee.png",
+    "size_bytes": 1539133,
+    "sha256": "977f55a463cd24000e4f900682e0a0133fc516af69966ac70ab29ec53a4d3b11",
+    "purpose": "visual_reference_priority",
+    "production_ready": false
+  },
+  {
+    "path": "design/concepts/ecrans_individuels/import_massif_reference_detaillee.png",
+    "size_bytes": 1203743,
+    "sha256": "9c981e565547b8684d235241564a896c0dec0b8600fd22c79877427d29535e6c",
+    "purpose": "visual_reference_priority",
+    "production_ready": false
+  },
+  {
+    "path": "design/prototype/launch_mobile_prototype.html",
+    "size_bytes": 48013,
+    "sha256": "b039c0bb629d7c9bef0cdd0fafbf7466c2f18fd44e199ac74074b5394b5c3faa",
+    "purpose": "interaction_reference",
+    "production_ready": false
+  }
+]
