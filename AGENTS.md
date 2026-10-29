@@ -4,4 +4,4 @@ Lire et respecter intégralement `LAUNCH_pack_Codex_references_concepts/AGENTS.m
 
 L’application React est à la racine. Commandes : `npm ci`, `npm run dev`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`.
 
-Mode démo uniquement à ce stade ; aucun backend réel ou moteur d’attribution dans le client. Ne jamais introduire de secret dans une variable `VITE_*`. Utiliser le checkout existant, sans worktree sauf demande explicite.
+Auth Supabase et profils privés réels ; cartes/activités toujours fictives. Voir `docs/auth-and-profiles.md`. Aucun moteur d’attribution dans le client. Ne jamais introduire de secret dans une variable `VITE_*`. Utiliser le checkout existant, sans worktree sauf demande explicite.

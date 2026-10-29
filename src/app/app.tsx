@@ -24,7 +24,10 @@ import {
   DemoSessionContext,
   useDemoSession,
 } from "@/features/auth/demo-session";
-import { AuthPage, WelcomePage } from "@/features/auth/welcome-page";
+import { WelcomePage } from "@/features/auth/welcome-page";
+import { AuthPage, UpdatePasswordPage } from "@/features/auth/auth-page";
+import { AuthProvider } from "@/features/auth/auth-provider";
+import { useAuth } from "@/features/auth/auth-context";
 import { HomePage } from "@/features/home/home-page";
 import { CollectionsPage } from "@/features/collections/collections-page";
 import { CardPage } from "@/features/cards/card-page";
@@ -53,6 +56,7 @@ function RouteFocus() {
   return null;
 }
 function Shell() {
+  const { session } = useAuth();
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -90,12 +94,15 @@ function Shell() {
         </div>
       </header>
       <div className="demo-strip">
-        Un aperçu de Launch. Données fictives, vrais objectifs.
+        {session
+          ? "Compte connecté · Cartes et activités de démonstration."
+          : "Un aperçu de Launch. Données fictives, vrais objectifs."}
         <ArrowUpRight size={13} />
       </div>
       {!online && (
         <p className="offline" role="status">
-          Hors ligne · La démo reste accessible, aucun envoi ne sera effectué.
+          Hors ligne · Vérifie ta connexion avant d’enregistrer des
+          modifications.
         </p>
       )}
       <main id="main">
@@ -119,7 +126,24 @@ function Shell() {
 }
 function DemoGuard() {
   const { active } = useDemoSession();
-  return active ? <Outlet /> : <Navigate to="/auth" replace />;
+  const auth = useAuth();
+  const location = useLocation();
+  if (auth.loading) return <LoadingState />;
+  if (auth.error) return <InlineError retry={auth.retry} />;
+  if (auth.expired && !auth.session)
+    return <Navigate to="/auth?expired=1" replace />;
+  return auth.session && !auth.recovery ? (
+    <Outlet />
+  ) : auth.recovery ? (
+    <Navigate to="/auth/update-password" replace />
+  ) : active ? (
+    <Outlet />
+  ) : (
+    <Navigate
+      to={`/auth?next=${encodeURIComponent(location.pathname)}${auth.expired ? "&expired=1" : ""}`}
+      replace
+    />
+  );
 }
 function DataRoutes() {
   const q = useDemoData();
@@ -148,22 +172,76 @@ function DataRoutes() {
 }
 function RootRoutes() {
   const { active } = useDemoSession();
+  const auth = useAuth();
+  const connected = active || !!auth.session;
   return (
     <Routes>
       <Route element={<Shell />}>
         <Route
           index
-          element={active ? <Navigate to="/app" replace /> : <WelcomePage />}
+          element={
+            auth.loading ? (
+              <LoadingState />
+            ) : connected ? (
+              <Navigate to="/app" replace />
+            ) : (
+              <WelcomePage />
+            )
+          }
         />
         <Route
           path="auth"
-          element={active ? <Navigate to="/app" replace /> : <AuthPage />}
+          element={
+            auth.loading ? (
+              <LoadingState />
+            ) : connected ? (
+              <Navigate to="/app" replace />
+            ) : (
+              <AuthPage />
+            )
+          }
         />
+        <Route path="auth/signup" element={<AuthPage mode="signup" />} />
+        <Route
+          path="auth/forgot-password"
+          element={<AuthPage mode="forgot" />}
+        />
+        <Route path="auth/update-password" element={<UpdatePasswordPage />} />
+        <Route path="auth/callback" element={<AuthCallback />} />
         <Route element={<DemoGuard />}>
           <Route path="*" element={<DataRoutes />} />
         </Route>
       </Route>
     </Routes>
+  );
+}
+function AuthCallback() {
+  const auth = useAuth();
+  const location = useLocation();
+  if (
+    new URLSearchParams(location.search).has("error") ||
+    new URLSearchParams(location.hash.slice(1)).has("error")
+  )
+    return (
+      <div className="empty panel">
+        <h1>Ce lien ne fonctionne plus.</h1>
+        <p>Il est expiré ou a déjà été utilisé.</p>
+        <Link to="/auth/forgot-password">Demander un nouveau lien</Link>
+      </div>
+    );
+  if (auth.loading) return <LoadingState />;
+  if (auth.error) return <InlineError retry={auth.retry} />;
+  return (
+    <Navigate
+      to={
+        auth.recovery
+          ? "/auth/update-password"
+          : auth.session
+            ? "/app"
+            : "/auth?expired=1"
+      }
+      replace
+    />
   );
 }
 export function App() {
@@ -181,11 +259,13 @@ export function App() {
   };
   return (
     <QueryClientProvider client={queryClient}>
-      <DemoSessionContext.Provider value={{ active, enter, leave }}>
-        <BrowserRouter>
-          <RootRoutes />
-        </BrowserRouter>
-      </DemoSessionContext.Provider>
+      <AuthProvider>
+        <DemoSessionContext.Provider value={{ active, enter, leave }}>
+          <BrowserRouter>
+            <RootRoutes />
+          </BrowserRouter>
+        </DemoSessionContext.Provider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, LockKeyhole } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDemoSession } from "./demo-session";
 export function WelcomePage() {
@@ -21,23 +21,12 @@ export function WelcomePage() {
           Explorer la démo <ArrowRight size={18} />
         </Button>
         <Button asChild variant="ghost">
-          <Link to="/auth">À propos de la connexion</Link>
+          <Link to="/auth">Me connecter</Link>
+        </Button>
+        <Button asChild>
+          <Link to="/auth/signup">Créer mon compte</Link>
         </Button>
       </div>
-    </div>
-  );
-}
-export function AuthPage() {
-  const { enter } = useDemoSession();
-  return (
-    <div className="empty panel">
-      <LockKeyhole size={32} />
-      <h1>Bienvenue chez Launch.</h1>
-      <p>
-        La connexion réelle sera disponible après la configuration de Supabase
-        Auth. Aucun identifiant personnel n’est demandé ici.
-      </p>
-      <Button onClick={enter}>Continuer avec les données fictives</Button>
     </div>
   );
 }

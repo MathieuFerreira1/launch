@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
+  timeout: 60000,
   workers: 2,
   retries: 0,
   reporter: [["list"], ["html", { open: "never" }]],
@@ -16,7 +17,11 @@ export default defineConfig({
   webServer: {
     command: "npm run dev -- --host 127.0.0.1",
     url: "http://127.0.0.1:5173",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
+    env: {
+      VITE_SUPABASE_URL: "https://auth.launch.test",
+      VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test_only",
+    },
   },
   projects: [360, 375, 390, 430]
     .map((width) => ({
