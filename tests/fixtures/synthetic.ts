@@ -35,7 +35,8 @@ export function gpxXml(
 ) {
   const d = new Date(start);
   const end = new Date(d.valueOf() + 1800e3).toISOString();
-  return `<?xml version="1.0"?><gpx version="1.1"><trk><name>${name}</name><type>${sport}</type><trkseg><trkpt lat="0" lon="0"><ele>10</ele><time>${start}</time></trkpt><trkpt lat="0" lon="0.044966"><ele>50</ele><time>${end}</time></trkpt></trkseg></trk></gpx>`;
+  // Synthetic GPS segment is slightly above the exact 5,000 m server threshold.
+  return `<?xml version="1.0"?><gpx version="1.1"><trk><name>${name}</name><type>${sport}</type><trkseg><trkpt lat="0" lon="0"><ele>10</ele><time>${start}</time></trkpt><trkpt lat="0" lon="0.044967"><ele>50</ele><time>${end}</time></trkpt></trkseg></trk></gpx>`;
 }
 export function tcxXml(sport = "Running", start = "2026-01-02T08:00:00Z") {
   return `<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"><Activities><Activity Sport="${sport}"><Id>${start}</Id><Lap StartTime="${start}"><TotalTimeSeconds>1800</TotalTimeSeconds><DistanceMeters>5000</DistanceMeters><MaximumSpeed>4</MaximumSpeed><Calories>300</Calories><Track><Trackpoint><Time>${start}</Time><AltitudeMeters>10</AltitudeMeters></Trackpoint><Trackpoint><Time>${new Date(Date.parse(start) + 1800e3).toISOString()}</Time><AltitudeMeters>50</AltitudeMeters></Trackpoint></Track></Lap></Activity></Activities></TrainingCenterDatabase>`;

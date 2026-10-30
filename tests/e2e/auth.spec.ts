@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { emptyRewardsResponse } from "../fixtures/rewards";
 const uid = "10000000-0000-0000-0000-000000000001";
 const token = `header.${Buffer.from(JSON.stringify({ sub: uid, role: "authenticated", exp: Math.floor(Date.now() / 1000) + 3600 })).toString("base64url")}.signature`;
 async function server(page: Page) {
@@ -27,6 +28,8 @@ async function server(page: Page) {
           "access-control-expose-headers": "x-supabase-api-version",
         },
       });
+    const rewards = emptyRewardsResponse(url.pathname);
+    if (rewards !== undefined) return respond(rewards);
     if (req.method() === "OPTIONS")
       return route.fulfill({
         status: 204,

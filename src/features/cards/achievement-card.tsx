@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Check, LockKeyhole } from "lucide-react";
+import { Check, LockKeyhole, Trophy } from "lucide-react";
 import { rarityLabels, sports, type Achievement } from "./types";
 export function AchievementCard({
   card,
@@ -12,6 +12,8 @@ export function AchievementCard({
     <Link
       to={`/cards/${card.id}`}
       className={`achievement ${hero ? "hero-card" : ""} ${!card.owned ? "locked" : ""}`}
+      data-rarity={card.rarity}
+      data-kind={card.kind}
       aria-label={`${card.title} · ${rarityLabels[card.rarity]} · ${card.owned ? "Obtenue" : "Verrouillée"}`}
     >
       <div className="art">
@@ -26,6 +28,17 @@ export function AchievementCard({
         <span className="ownership">
           {card.owned ? <Check size={17} /> : <LockKeyhole size={17} />}
         </span>
+        {card.kind && (
+          <span className="card-stamp">
+            {card.kind === "completion" ? (
+              <>
+                <Trophy size={13} /> COLLECTION ACCOMPLIE
+              </>
+            ) : (
+              `LAUNCH · ${card.edition?.toUpperCase() ?? "V1"}`
+            )}
+          </span>
+        )}
         {hero && (
           <div className="art-caption">
             CHAQUE SORTIE
@@ -45,9 +58,9 @@ export function AchievementCard({
         </div>
         {hero && (
           <span className="card-edition">
-            ÉDITION
+            {card.kind ? "SÉRIE" : "ÉDITION"}
             <br />
-            ORIGINALE · 01
+            {card.edition?.toUpperCase() ?? "ORIGINALE · 01"}
           </span>
         )}
       </div>

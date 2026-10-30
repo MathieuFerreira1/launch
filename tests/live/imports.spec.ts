@@ -137,13 +137,11 @@ test("live launch-dev: ZIP, private upload, lost commit response, resume, histor
       "</gpx>",
       `<!--${"x".repeat(7 * 1024 * 1024)}--></gpx>`,
     );
-    await page
-      .getByLabel("Fichiers sportifs")
-      .setInputFiles({
-        name: "synthetic-large.gpx",
-        mimeType: "application/gpx+xml",
-        buffer: Buffer.from(large),
-      });
+    await page.getByLabel("Fichiers sportifs").setInputFiles({
+      name: "synthetic-large.gpx",
+      mimeType: "application/gpx+xml",
+      buffer: Buffer.from(large),
+    });
     await expect(
       page.getByRole("heading", { name: "Revue de ton import" }),
     ).toBeVisible();
@@ -158,6 +156,39 @@ test("live launch-dev: ZIP, private upload, lost commit response, resume, histor
     expect(tusPatches).toBeGreaterThan(0);
     console.log(
       "PASS live browser: actual tus-js-client upload of a synthetic 7 MiB source and second history activity.",
+    );
+    await page.goto("/collections/running");
+    await expect(
+      page.getByRole("link", { name: "5 km · Commune · Obtenue", exact: true }),
+    ).toBeVisible();
+    await expect(page.locator(".account-card-grid .achievement")).toHaveCount(
+      6,
+    );
+    await page
+      .getByRole("link", { name: "Découvrir mes cartes", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Découvrir mes cartes", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Révéler cette carte", exact: true })
+      .click();
+    await expect(page.getByRole("status")).toContainText("5 km");
+    await page.reload();
+    await expect(page.getByText("Carte 1 / 1", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Passer les animations" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Ta collection a grandi." }),
+    ).toBeVisible();
+    await page.goto("/app");
+    await expect(
+      page.getByRole("heading", { name: "Tes exploits, en cartes." }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Découvrir mes cartes", exact: true }),
+    ).toHaveCount(0);
+    console.log(
+      "PASS live browser: imported ZIP yields one personal card, initial reveal resumes after reload, skip persists, reimport never creates a second reward.",
     );
   } finally {
     await transport.dispose();

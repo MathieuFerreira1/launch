@@ -75,7 +75,8 @@ function ProfileEditor({ profile }: { profile: Profile }) {
         {profile.handle && <p>@{profile.handle}</p>}
         <p>{profile.bio || "Une nouvelle histoire sportive commence ici."}</p>
         <p className="small">
-          Profil privé · Les cartes et activités sont encore fictives.
+          Profil privé · Tes activités et collections personnelles restent dans
+          ton compte.
         </p>
         <Button
           variant="outline"

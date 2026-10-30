@@ -58,11 +58,18 @@ export async function reviewDuplicates(
       } else if (row.matches.length) item.duplicate = "probable";
     }
   }
-  const ordered = [...result].sort((a, b) =>
-    (a.started_at_utc ?? "").localeCompare(b.started_at_utc ?? ""),
+  const formatOrder = { fit: 0, gpx: 1, tcx: 2 };
+  // IndexedDB reloads entries by hash, not selection order. Keep the local
+  // duplicate representative stable, and never use an ignored file as a target.
+  const ordered = [...result].sort(
+    (a, b) =>
+      (a.started_at_utc ?? "").localeCompare(b.started_at_utc ?? "") ||
+      formatOrder[a.format] - formatOrder[b.format] ||
+      a.key.localeCompare(b.key),
   );
   for (let i = 0; i < ordered.length; i++) {
     const item = ordered[i]!;
+    if (item.decision === "skip") item.duplicate ??= "probable";
     for (let j = i - 1; j >= 0; j--) {
       const previous = ordered[j]!;
       if (
@@ -72,6 +79,7 @@ export async function reviewDuplicates(
           120
       )
         break;
+      if (previous.decision === "skip") continue;
       if (item.key !== previous.key && probable(item, previous)) {
         item.duplicate ??= "probable";
         item.matches!.push({

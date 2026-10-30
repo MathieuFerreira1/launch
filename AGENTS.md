@@ -4,4 +4,4 @@ Lire et respecter intégralement `LAUNCH_pack_Codex_references_concepts/AGENTS.m
 
 L’application React est à la racine. Commandes : `npm ci`, `npm run dev`, `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, `npm run test:e2e`.
 
-Auth Supabase, profils et activités privés réels pour les comptes connectés ; cartes toujours fictives et démo sans compte séparée. Voir `docs/auth-and-profiles.md` et `docs/bulk-imports.md`. Aucun moteur d’attribution dans le client. Ne jamais introduire de secret dans une variable `VITE_*`. Utiliser le checkout existant, sans worktree sauf demande explicite.
+Auth Supabase, profils, activités et collections personnelles réels pour les comptes connectés ; démo sans compte séparée. Voir `docs/auth-and-profiles.md`, `docs/bulk-imports.md` et `docs/cards-and-reveals.md`. Le moteur de cartes s’exécute en RPC PostgreSQL par lots, jamais dans le client ; `user_cards` est source de vérité, les reveals ne font que présenter les possessions. Ne jamais introduire de secret dans une variable `VITE_*`. Utiliser le checkout existant, sans worktree sauf demande explicite.

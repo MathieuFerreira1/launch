@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { BlobWriter, TextReader, ZipWriter } from "@zip.js/zip.js";
 import { gpxXml, tcxXml, largeGpx } from "../fixtures/synthetic";
+import { emptyRewardsResponse } from "../fixtures/rewards";
 const uid = "20000000-0000-0000-0000-000000000001";
 test("Worker import, explicit duplicate decision, interrupted batch resume and real history UI", async ({
   page,
@@ -36,6 +37,8 @@ test("Worker import, explicit duplicate decision, interrupted batch resume and r
           "access-control-allow-methods": "*",
         },
       });
+    const rewards = emptyRewardsResponse(u.pathname);
+    if (rewards !== undefined) return ok(rewards);
     if (u.pathname === "/auth/v1/token")
       return ok({
         access_token: token,
@@ -194,21 +197,27 @@ test("200-file ZIP stays responsive and review is paginated", async ({
   await page.route("https://auth.launch.test/**", async (route) => {
     const u = new URL(route.request().url());
     const body = route.request().postDataJSON() ?? {};
-    const data = u.pathname.endsWith("/token")
-      ? {
-          access_token: token,
-          refresh_token: "synthetic",
-          token_type: "bearer",
-          expires_in: 3600,
-          user: { id: uid, email: "synthetic@example.test", user_metadata: {} },
-        }
-      : u.pathname.endsWith("/find_activity_duplicates")
-        ? body.p_items.map((i: { key: string }) => ({
-            key: i.key,
-            exactId: null,
-            matches: [],
-          }))
-        : {};
+    const data =
+      emptyRewardsResponse(u.pathname) ??
+      (u.pathname.endsWith("/token")
+        ? {
+            access_token: token,
+            refresh_token: "synthetic",
+            token_type: "bearer",
+            expires_in: 3600,
+            user: {
+              id: uid,
+              email: "synthetic@example.test",
+              user_metadata: {},
+            },
+          }
+        : u.pathname.endsWith("/find_activity_duplicates")
+          ? body.p_items.map((i: { key: string }) => ({
+              key: i.key,
+              exactId: null,
+              matches: [],
+            }))
+          : {});
     await route.fulfill({
       json: data,
       headers: { "access-control-allow-origin": "*" },
@@ -294,7 +303,7 @@ test("manual activity is saved as self-reported and shown in private history", a
   await page.route("https://auth.launch.test/**", async (route) => {
     const u = new URL(route.request().url());
     const body = route.request().postDataJSON() ?? {};
-    let data: unknown = {};
+    let data: unknown = emptyRewardsResponse(u.pathname) ?? {};
     if (u.pathname.endsWith("/token"))
       data = {
         access_token: token,

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/states";
 import { useAuth } from "@/features/auth/auth-context";
 import { sports } from "@/features/cards/types";
+import { RewardsNotice } from "@/features/cards/rewards-context";
 import { date, distance, duration } from "@/lib/utils";
 import {
   type LocalImport,
@@ -216,10 +217,11 @@ export function BulkImportPage() {
         setProgress({ done, total: total || 1 }),
       );
       setMessage(
-        "Import terminé. Retrouve tes activités dans ton historique. Aucune carte n’a été attribuée à cette étape.",
+        "Import terminé. Retrouve tes activités dans ton historique ; ta collection se prépare côté serveur.",
       );
       refresh(d);
       await cache.invalidateQueries({ queryKey: ["activities", owner] });
+      void cache.invalidateQueries({ queryKey: ["reward-processing", owner] });
     } catch (e) {
       d.stage = "partial";
       await updateMeta(d);
@@ -451,6 +453,7 @@ export function BulkImportPage() {
           {message} <Link to="/activities">Voir mon historique</Link>
         </p>
       )}
+      {message && <RewardsNotice />}
       {draft && draft.stage !== "completed" && (
         <>
           <div className="section-heading">
