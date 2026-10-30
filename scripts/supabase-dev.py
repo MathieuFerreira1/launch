@@ -46,7 +46,7 @@ def main():
     global VERSION, MIGRATION, TESTS
     parser = argparse.ArgumentParser()
     parser.add_argument('action', choices=['validate', 'test', 'apply'])
-    parser.add_argument('--mission', choices=['auth', 'imports', 'storage', 'lifecycle', 'classification'], default='auth')
+    parser.add_argument('--mission', choices=['auth', 'imports', 'storage', 'lifecycle', 'classification', 'rewards', 'reward_proofs'], default='auth')
     args = parser.parse_args()
     if args.mission == 'imports':
         VERSION = '20261029000200'
@@ -64,6 +64,14 @@ def main():
         VERSION = '20261029000500'
         MIGRATION = ROOT / 'supabase/migrations/20261029000500_classification_review_guards.sql'
         TESTS = ROOT / 'supabase/tests/activity_imports.sql'
+    if args.mission == 'rewards':
+        VERSION = '20261030000100'
+        MIGRATION = ROOT / 'supabase/migrations/20261030000100_cards_collections_rewards.sql'
+        TESTS = ROOT / 'supabase/tests/card_rewards.sql'
+    if args.mission == 'reward_proofs':
+        VERSION = '20261030000200'
+        MIGRATION = ROOT / 'supabase/migrations/20261030000200_reward_proof_reconciliation.sql'
+        TESTS = ROOT / 'supabase/tests/card_reward_proofs.sql'
     verify_project()
     migration = MIGRATION.read_text()
     if args.action == 'validate':

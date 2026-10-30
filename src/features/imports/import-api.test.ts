@@ -1,7 +1,12 @@
 // @vitest-environment node
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createClient } from "@supabase/supabase-js";
-import { commitDraft, uploadSource, importError } from "./import-api";
+import {
+  commitDraft,
+  uploadSource,
+  importError,
+  reviewDuplicates,
+} from "./import-api";
 import { missingStorageObject, requestFailure } from "./import-errors";
 import type { LocalImport, SourceFile } from "./model";
 
@@ -189,6 +194,39 @@ describe("source upload through the real storage-js client", () => {
 });
 
 describe("resumable commits and useful RPC failures", () => {
+  it("preserves duplicate decisions when IndexedDB changes entry order on reload", async () => {
+    mocks.fetch.mockImplementation(async (_url: string, init: RequestInit) =>
+      Response.json(
+        JSON.parse(String(init.body)).p_items.map((i: { key: string }) => ({
+          key: i.key,
+          exactId: null,
+          matches: [],
+        })),
+      ),
+    );
+    const gpx = draft().items[0]!;
+    const tcx = {
+      ...gpx,
+      key: `${"b".repeat(64)}:0`,
+      fileHash: "b".repeat(64),
+      format: "tcx" as const,
+      fileName: "synthetic.tcx",
+    };
+    const first = await reviewDuplicates([gpx, tcx]);
+    const ignored = {
+      ...first.find((i) => i.format === "tcx")!,
+      decision: "skip" as const,
+    };
+    const resumed = await reviewDuplicates([
+      ignored,
+      first.find((i) => i.format === "gpx")!,
+    ]);
+    expect(resumed.find((i) => i.format === "gpx")?.duplicate).toBeUndefined();
+    expect(resumed.find((i) => i.format === "tcx")).toMatchObject({
+      decision: "skip",
+      duplicate: "probable",
+    });
+  });
   it("reuses an uploaded file after a failed commit, then skips its committed receipt on replay", async () => {
     let uploaded = false,
       committed = false,

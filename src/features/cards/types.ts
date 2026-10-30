@@ -14,7 +14,7 @@ export const rarityLabels: Record<Rarity, string> = {
 };
 export interface Achievement {
   id: string;
-  sport: Sport;
+  sport: string;
   title: string;
   subtitle: string;
   rarity: Rarity;
@@ -23,4 +23,6 @@ export interface Achievement {
   artwork: string;
   awardedAt?: string;
   activityId?: string;
+  kind?: "milestone" | "completion";
+  edition?: string;
 }

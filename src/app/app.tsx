@@ -45,6 +45,12 @@ import {
 import { ImportPage } from "@/features/imports/import-page";
 import { ProfilePage } from "@/features/profile/profile-page";
 import { useDemoData } from "@/lib/demo";
+import { AccountHome } from "@/features/home/account-home";
+import { AccountCollections } from "@/features/collections/account-collections";
+import { AccountCard } from "@/features/cards/account-card";
+import { RewardsProvider } from "@/features/cards/rewards-context";
+import { RevealPage } from "@/features/reveals/reveal-page";
+import { AccountProfile } from "@/features/profile/account-profile";
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1 } },
 });
@@ -64,6 +70,7 @@ function RouteFocus() {
 }
 function Shell() {
   const { session } = useAuth();
+  const { pathname } = useLocation();
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -75,7 +82,11 @@ function Shell() {
     };
   }, []);
   return (
-    <>
+    <div
+      className={
+        session && pathname.startsWith("/reveal/") ? "reveal-shell" : undefined
+      }
+    >
       <a href="#main" className="skip-link">
         Aller au contenu
       </a>
@@ -91,7 +102,7 @@ function Shell() {
           ))}
         </nav>
         <div className="top-actions">
-          <span className="demo-badge">DÉMO</span>
+          {!session && <span className="demo-badge">DÉMO</span>}
           <Button asChild variant="outline">
             <Link to="/import">
               <Plus size={17} />
@@ -102,7 +113,7 @@ function Shell() {
       </header>
       <div className="demo-strip">
         {session
-          ? "Compte connecté · Historique privé · Cartes de démonstration."
+          ? "Ton histoire et tes collections restent privées."
           : "Un aperçu de Launch. Données fictives, vrais objectifs."}
         <ArrowUpRight size={13} />
       </div>
@@ -117,7 +128,11 @@ function Shell() {
       </main>
       <footer className="desktop-footer">
         <span>launch. — Tes efforts méritent d’être collectionnés.</span>
-        <span>Démo V1 · Collection privée</span>
+        <span>
+          {session
+            ? "Collection personnelle · Non certifiée"
+            : "Démo V1 · Collection privée"}
+        </span>
       </footer>
       <nav className="bottom-nav" aria-label="Navigation mobile">
         {tabs.map((t) => (
@@ -128,7 +143,7 @@ function Shell() {
         ))}
       </nav>
       <RouteFocus />
-    </>
+    </div>
   );
 }
 function DemoGuard() {
@@ -153,6 +168,35 @@ function DemoGuard() {
   );
 }
 function DataRoutes() {
+  const { session } = useAuth();
+  if (!session) return <DemoDataRoutes />;
+  return (
+    <RewardsProvider>
+      <Routes>
+        <Route path="/app" element={<AccountHome />} />
+        <Route path="/collections" element={<AccountCollections />} />
+        <Route
+          path="/collections/:sportSlug"
+          element={<AccountCollections />}
+        />
+        <Route path="/cards/:cardId" element={<AccountCard />} />
+        <Route path="/reveal/:sessionId" element={<RevealPage />} />
+        <Route path="/activities" element={<AccountActivities />} />
+        <Route path="/activities/sources" element={<SourcesPage />} />
+        <Route path="/activities/new" element={<ManualActivity />} />
+        <Route path="/activities/:id" element={<AccountActivity />} />
+        <Route path="/activities/import" element={<BulkImportPage />} />
+        <Route path="/import" element={<BulkImportPage />} />
+        <Route path="/profile" element={<AccountProfile />} />
+        <Route
+          path="*"
+          element={<EmptyState title="Cette page n’existe pas" />}
+        />
+      </Routes>
+    </RewardsProvider>
+  );
+}
+function DemoDataRoutes() {
   const { session } = useAuth();
   const q = useDemoData();
   if (q.isPending) return <LoadingState />;

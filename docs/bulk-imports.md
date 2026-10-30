@@ -4,7 +4,7 @@
 
 Branche `feat/bulk-activity-import` créée depuis `main` (`57267e1`), qui contient la Mission 02 et la configuration Cloudflare. Supabase **Launch dev**, ref `kephzbvcbmjzqqvqgtav`, est le seul projet utilisé.
 
-Les comptes connectés utilisent désormais les activités réelles ; la démo sans compte garde ses fixtures. Les cartes restent fictives, sans moteur de récompenses. Leurs liens vers les activités fictives sont séparés de l’historique privé (`/demo/activities/:id`). L’authentification existante est conservée ; seule la purge des brouillons de fichiers lors d’une déconnexion volontaire y est ajoutée.
+Les comptes connectés utilisent les activités réelles ; la démo sans compte garde ses fixtures. Depuis la [Mission 04](cards-and-reveals.md), les collections et liens de cartes des comptes connectés sont également réels, avec un moteur serveur et des reveals persistants. L’authentification existante est conservée ; seule la purge des brouillons de fichiers lors d’une déconnexion volontaire y est ajoutée.
 
 - `src/features/imports/parsers` : normalisation FIT/GPX/TCX, unités SI et horodatages UTC.
 - `analyze.ts` et `import.worker.ts` : lecture séquentielle ZIP/multifichiers, décompression bornée, hash SHA-256, analyse lourde en Worker. Un accusé de réception IndexedDB impose une contre-pression entre fichiers ; l’archive entière n’est jamais décompressée en mémoire.

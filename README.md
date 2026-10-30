@@ -1,6 +1,6 @@
 # Launch · Application V1
 
-Application React mobile-first en français. Le frontend dispose de Supabase Auth et de profils privés réels ; les activités des comptes connectés sont réelles, les cartes restent des **données fictives**. Le pack de conception original reste intact dans [`LAUNCH_pack_Codex_references_concepts/`](LAUNCH_pack_Codex_references_concepts/README.md).
+Application React mobile-first en français. Supabase Auth, profils privés, import massif, historique, collections personnelles et reveals réels pour les comptes connectés ; la démo sans compte garde ses données fictives. Le pack de conception original reste intact dans [`LAUNCH_pack_Codex_references_concepts/`](LAUNCH_pack_Codex_references_concepts/README.md).
 
 ## Lancer
 
@@ -47,7 +47,7 @@ Playwright construit puis sert le bundle de production via Vite Preview, sans re
 
 Bienvenue `/`, connexion `/auth` et inscription `/auth/signup`, accueil `/app`, collections `/collections` et `/collections/:sportSlug`, carte `/cards/:cardId`, activités `/activities` et `/activities/:id`, import `/import` (alias `/activities/import`), profil `/profile`, saisie manuelle `/activities/new` et sources privées `/activities/sources`.
 
-Quatre onglets : Accueil, Collections, Activités, Profil. Les quatre sports sont disponibles sans sélection à l’inscription. Le reveal est un composant préparatoire testé, sans route publique ni attribution de récompense.
+Quatre onglets : Accueil, Collections, Activités, Profil. Les quatre sports sont disponibles sans sélection à l’inscription. Le catalogue V1 compte 24 jalons et 4 cartes de complétion ; `/reveal/:sessionId` présente uniquement des cartes déjà attribuées côté serveur, avec reprise et skip.
 
 ## Supabase Auth et profils
 
@@ -57,7 +57,7 @@ Copier `.env.example` vers `.env.local` et renseigner uniquement l’URL du proj
 
 Les pages `/auth`, `/auth/signup`, `/auth/forgot-password`, `/auth/callback` et `/auth/update-password` gèrent les parcours email/mot de passe et les sessions PKCE. `/profile` lit et modifie le profil de l’utilisateur connecté sous RLS. Aucun choix des sports à l’inscription : les quatre sports sont présents dans le catalogue.
 
-La démo sans compte reste disponible avec ses fixtures. Les comptes connectés disposent maintenant d’un import FIT/GPX/TCX/ZIP en Worker, d’un historique réel, de sources privées facultatives et d’une saisie manuelle. Les cartes restent fictives ; aucun moteur de récompenses client. Voir [Mission 03 — import massif](docs/bulk-imports.md) pour le parcours, les limites, les migrations et la reprise. Aucun avatar 3D, boutique, social ou connecteur Garmin/Strava.
+La démo sans compte reste disponible avec ses fixtures. Les comptes connectés disposent d’un import FIT/GPX/TCX/ZIP en Worker, d’un historique réel, de sources privées facultatives et d’une saisie manuelle. Le moteur backend calcule les cartes personnelles depuis l’historique, sans nouvel import, puis prépare les reveals initiaux et quotidiens. Voir [Mission 03 — import massif](docs/bulk-imports.md) et [Mission 04 — cartes et reveals](docs/cards-and-reveals.md) pour l’architecture, les tests, migrations et limites. Les récompenses restent non certifiées ; aucun moteur compétitif, avatar 3D, boutique, social ou connecteur Garmin/Strava.
 
 ```sh
 # Tests PostgreSQL RLS isolés inclus dans Vitest :

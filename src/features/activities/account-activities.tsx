@@ -8,6 +8,7 @@ import { EmptyState, LoadingState, PageHeader } from "@/components/ui/states";
 import { useAuth } from "@/features/auth/auth-context";
 import { SportIcon } from "@/components/sport-icon";
 import { sports } from "@/features/cards/types";
+import { RewardsNotice } from "@/features/cards/rewards-context";
 import { normalize, type Category } from "@/features/imports/model";
 import { importError } from "@/features/imports/import-api";
 import { getSupabaseClient } from "@/lib/supabase";
@@ -288,6 +289,9 @@ export function AccountActivity() {
               await cache.invalidateQueries({
                 queryKey: ["activities", owner],
               });
+              void cache.invalidateQueries({
+                queryKey: ["reward-processing", owner],
+              });
               setSelected(null);
             } catch {
               setError("Correction non enregistrée. Réessaie.");
@@ -361,6 +365,7 @@ export function AccountActivity() {
           {error}
         </p>
       )}
+      <RewardsNotice />
     </>
   );
 }
@@ -420,6 +425,7 @@ export function ManualActivity() {
       setPending(true);
       const id = await saveManual(requestId, parsed, keep);
       await cache.invalidateQueries({ queryKey: ["activities", owner] });
+      void cache.invalidateQueries({ queryKey: ["reward-processing", owner] });
       navigate(`/activities/${id}`, { replace: true });
     } catch (e) {
       if (
