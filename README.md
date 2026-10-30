@@ -69,3 +69,5 @@ python3 scripts/supabase-dev.py test
 ## Déploiement futur
 
 `npm run build` produit `dist/`. Configurer l’hébergeur pour renvoyer `index.html` sur les routes applicatives (React Router). Aucun déploiement n’est effectué ici. Voir [la note de revue](docs/implementation-review.md) pour les arbitrages visuels et les limites de cette tranche.
+
+La finition mobile et ses captures avant/après sont documentées dans [Mission 05](docs/mobile-ux-polish.md).

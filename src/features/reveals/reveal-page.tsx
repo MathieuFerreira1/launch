@@ -1,6 +1,6 @@
 import { CollectionLoading } from "@/features/cards/rewards-context";
 import { useRewards } from "@/features/cards/use-rewards";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
@@ -37,7 +37,7 @@ function SingleCard({
                 <i key={i} style={{ "--i": i } as CSSProperties} />
               ))}
             </div>
-            <AchievementCard card={card} />
+            <AchievementCard card={card} interactive={false} />
           </>
         ) : (
           <button
@@ -87,14 +87,11 @@ export function RevealPage() {
     queryKey: ["reveal", owner, sessionId],
     queryFn: () => loadReveal(sessionId!),
     retry: 1,
+    staleTime: 30000,
     enabled: processing.data?.status === "ready" && !processing.isFetching,
   });
   const [pending, setPending] = useState(false),
     [error, setError] = useState("");
-  useEffect(() => {
-    if (q.data)
-      void cache.invalidateQueries({ queryKey: ["collection-data", owner] });
-  }, [q.dataUpdatedAt, q.data, cache, owner]);
   async function advance(position: number, finish = false) {
     if (!q.data) return;
     setPending(true);
@@ -102,7 +99,8 @@ export function RevealPage() {
     try {
       const session = await advanceReveal(q.data.session.id, position, finish);
       cache.setQueryData(["reveal", owner, sessionId], { ...q.data, session });
-      await cache.invalidateQueries({ queryKey: ["collection-data", owner] });
+      if (session.status === "seen")
+        await cache.invalidateQueries({ queryKey: ["collection-data", owner] });
     } catch {
       setError(
         "Ta progression n’a pas été confirmée. Réessaie ; tes cartes restent acquises dans ta collection.",
@@ -203,6 +201,16 @@ export function RevealPage() {
               <Link to="/app">Retour à l’accueil</Link>
             </Button>
           </div>
+          <div className="reveal-breakdown" aria-label="Récompenses par sport">
+            {collections.data.collections.map((sport) => {
+              const n = cards.filter((c) => c.collectionId === sport.id).length;
+              return n ? (
+                <span key={sport.id}>
+                  <strong>{n}</strong> {sport.title}
+                </span>
+              ) : null;
+            })}
+          </div>
           <div className="card-grid reveal-summary">
             {cards.map((c) => (
               <AchievementCard key={c.id} card={c} />
@@ -245,6 +253,12 @@ export function RevealPage() {
               Carte {session.position + 1} / {session.card_count}
             </p>
           </header>
+          <progress
+            className="reveal-progress"
+            aria-label="Cartes découvertes"
+            value={session.position}
+            max={session.card_count}
+          />
           <SingleCard
             key={session.position}
             card={cards[session.position]!}

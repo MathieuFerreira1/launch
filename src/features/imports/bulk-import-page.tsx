@@ -272,6 +272,15 @@ export function BulkImportPage() {
           </label>
         </div>
       )}
+      <div className="import-steps" aria-label="Étapes de l’import">
+        <span className={!draft ? "current" : ""}>1 · Choisir</span>
+        <span className={draft && draft.stage !== "completed" ? "current" : ""}>
+          2 · Vérifier
+        </span>
+        <span className={draft?.stage === "completed" ? "current" : ""}>
+          3 · Retrouver
+        </span>
+      </div>
       <div className="import-grid">
         <section>
           <div
@@ -373,6 +382,11 @@ export function BulkImportPage() {
                   </Button>
                 </>
               )}
+              {!running && draft?.stage !== "completed" && (
+                <a className="review-jump" href="#import-review">
+                  Vérifier les activités ↓
+                </a>
+              )}
               <div className="import-counts">
                 <span>
                   <strong>{entries.length}</strong> activités
@@ -457,7 +471,7 @@ export function BulkImportPage() {
       {draft && draft.stage !== "completed" && (
         <>
           <div className="section-heading">
-            <h2>Vérifie avant de confirmer</h2>
+            <h2 id="import-review">Vérifie avant de confirmer</h2>
             <span>
               Page {page + 1} / {Math.max(1, Math.ceil(entries.length / 50))}
             </span>
@@ -621,7 +635,7 @@ export function BulkImportPage() {
             éligibles aux futures récompenses. Un GPX de parcours seul n’est pas
             une preuve d’activité accomplie.
           </p>
-          <div className="actions">
+          <div className="actions import-confirm">
             <Button
               disabled={running || !ready || !(entries.length + issues.length)}
               onClick={() => void confirm()}
