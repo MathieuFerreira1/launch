@@ -91,3 +91,5 @@ npm run check:cloudflare
 ```
 
 La seconde commande prépare le déploiement en `--dry-run` sans jeton ni publication. Elle est aussi exécutée par la CI. Les variables publiques `VITE_SUPABASE_URL` et `VITE_SUPABASE_PUBLISHABLE_KEY` doivent être disponibles **au moment du build Cloudflare**, puis la nouvelle URL de preview doit être autorisée dans les redirections Supabase Auth si l’authentification y est testée. Ne pas ajouter de clé service_role ou de jeton de gestion dans la configuration Wrangler ou dans les variables `VITE_*`.
+
+Voir le [diagnostic des previews du 30 octobre 2026](cloudflare-preview-diagnostic.md) pour distinguer URL de version/alias de branche, variables de build/bindings et contrôler la configuration sans afficher ses valeurs.
