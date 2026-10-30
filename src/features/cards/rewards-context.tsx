@@ -23,12 +23,14 @@ function useRewardQueries(owner: string) {
     queryKey: ["collection-data", owner],
     queryFn: loadCollections,
     staleTime: 30000,
+    refetchOnWindowFocus: false,
     retry: 1,
     enabled: processing.data?.status === "ready",
   });
   useEffect(() => {
     if (processing.data?.status === "ready") {
-      void cache.invalidateQueries({ queryKey: ["collection-data", owner] });
+      if (cache.getQueryData(["collection-data", owner]))
+        void cache.invalidateQueries({ queryKey: ["collection-data", owner] });
       void cache.invalidateQueries({ queryKey: ["reveal", owner] });
     }
   }, [processing.dataUpdatedAt, processing.data?.status, cache, owner]);

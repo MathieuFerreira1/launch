@@ -23,8 +23,11 @@ export function InlineError({ retry }: { retry: () => void }) {
   return (
     <div className="empty panel" role="alert">
       <CircleAlert />
-      <h2>Impossible de charger la démo</h2>
-      <p>Réessaie dans un instant.</p>
+      <h2>Chargement indisponible</h2>
+      <p>
+        Vérifie ta connexion, puis réessaie. Tes données enregistrées restent
+        conservées.
+      </p>
       <Button onClick={retry}>Réessayer</Button>
     </div>
   );

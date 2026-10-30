@@ -27,7 +27,7 @@ export function AccountCard() {
         </Link>
       </Button>
       <div className="detail-grid">
-        <AchievementCard card={card} />
+        <AchievementCard card={card} interactive={false} />
         <section className="detail-copy">
           <p className="eyebrow">
             {card.kind === "completion"

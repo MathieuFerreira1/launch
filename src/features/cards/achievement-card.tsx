@@ -1,28 +1,35 @@
 import { Link } from "react-router-dom";
-import { Check, LockKeyhole, Trophy } from "lucide-react";
+import { Check, LockKeyhole, Trophy, Diamond } from "lucide-react";
 import { rarityLabels, sports, type Achievement } from "./types";
 export function AchievementCard({
   card,
   hero = false,
+  interactive = true,
 }: {
   card: Achievement;
   hero?: boolean;
+  interactive?: boolean;
 }) {
-  return (
-    <Link
-      to={`/cards/${card.id}`}
-      className={`achievement ${hero ? "hero-card" : ""} ${!card.owned ? "locked" : ""}`}
-      data-rarity={card.rarity}
-      data-kind={card.kind}
-      aria-label={`${card.title} · ${rarityLabels[card.rarity]} · ${card.owned ? "Obtenue" : "Verrouillée"}`}
-    >
+  const attributes = {
+    className: `achievement ${hero ? "hero-card" : ""} ${!card.owned ? "locked" : ""}`,
+    "data-sport": card.sport,
+    "data-rarity": card.rarity,
+    "data-kind": card.kind,
+    "aria-label": `${card.title} · ${rarityLabels[card.rarity]} · ${card.owned ? "Obtenue" : "Verrouillée"}`,
+  };
+  const content = (
+    <>
       <div className="art">
         <img
           src={`/art/${card.artwork}.svg`}
           alt=""
+          width={600}
+          height={600}
+          decoding="async"
           loading={hero ? "eager" : "lazy"}
         />
         <span className={`rarity ${card.rarity}`}>
+          <Diamond size={10} aria-hidden="true" />
           {rarityLabels[card.rarity]}
         </span>
         <span className="ownership">
@@ -63,7 +70,18 @@ export function AchievementCard({
             {card.edition?.toUpperCase() ?? "ORIGINALE · 01"}
           </span>
         )}
+        <div className="card-footer" aria-hidden="true">
+          <span>{card.owned ? "SOUVENIR ACQUIS" : "PROCHAIN CAP"}</span>
+          <span>{card.edition?.toUpperCase() ?? "V1"}</span>
+        </div>
       </div>
+    </>
+  );
+  return interactive ? (
+    <Link to={`/cards/${card.id}`} {...attributes}>
+      {content}
     </Link>
+  ) : (
+    <article {...attributes}>{content}</article>
   );
 }

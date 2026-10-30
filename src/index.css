@@ -1672,3 +1672,410 @@ select {
     flex-grow: 1;
   }
 }
+
+/* Mission 05 — tactile, quiet chrome; collectible print details. */
+.achievement {
+  --card-tone: #76664e;
+  --card-wash: #f8f5ed;
+  border-radius: 18px;
+  isolation: isolate;
+}
+.achievement[data-rarity="rare"] {
+  --card-tone: #276480;
+  --card-wash: #edf5f8;
+}
+.achievement[data-rarity="epic"] {
+  --card-tone: #79538b;
+  --card-wash: #f4eff7;
+}
+.achievement[data-rarity="legendary"] {
+  --card-tone: #896013;
+  --card-wash: #fff6df;
+}
+.achievement .art {
+  aspect-ratio: 1;
+  background: var(--card-wash);
+}
+.achievement .art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 7px solid #ffffff24;
+  pointer-events: none;
+}
+.achievement .rarity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+}
+.achievement[data-rarity="epic"] .rarity {
+  border-bottom: 2px solid #bda1ca;
+}
+.achievement[data-rarity="legendary"] .rarity {
+  border: 1px solid #cda75d;
+}
+.achievement[data-rarity="legendary"] .card-caption {
+  background: linear-gradient(115deg, #fffdfa, #fff6e5);
+}
+.achievement .card-caption {
+  padding: 16px 14px 12px;
+}
+.achievement .card-caption h3 {
+  font-size: 1.18rem;
+  font-variant-numeric: tabular-nums;
+}
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  font-weight: 650;
+  color: var(--card-tone);
+}
+.hero-card .card-caption {
+  flex-wrap: wrap;
+}
+.hero-card .card-footer {
+  flex-basis: 100%;
+}
+.hero-card .art {
+  aspect-ratio: 1.25;
+}
+.achievement.locked .art > img {
+  filter: grayscale(0.85);
+  opacity: 0.32;
+}
+.achievement.locked .ownership {
+  width: 48px;
+  height: 48px;
+  box-shadow: 0 0 0 7px #ffffff40;
+}
+.achievement.locked .card-caption {
+  background: #f8f7f3;
+}
+.achievement.locked .card-footer {
+  color: #69675f;
+}
+.achievement .ownership {
+  z-index: 1;
+}
+.detail-grid > .achievement {
+  align-self: start;
+}
+.detail-copy > .panel {
+  border-left: 3px solid #edb49e;
+}
+.detail-copy .personal-note {
+  font-size: 0.75rem;
+}
+.reveal-progress {
+  max-width: 220px;
+  margin: 0 auto 24px;
+  height: 4px;
+}
+.reveal-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 28px 0;
+}
+.reveal-breakdown > span {
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.reveal-breakdown strong {
+  color: var(--foreground);
+  margin-right: 5px;
+}
+.single-reveal {
+  animation: stage-enter 0.25s ease-out both;
+}
+.reveal-art-stage {
+  height: auto;
+  min-height: 380px;
+}
+.card-back {
+  min-height: 380px;
+  background:
+    repeating-linear-gradient(45deg, #ffffff15 0 1px, transparent 1px 16px),
+    linear-gradient(140deg, #faf1e0, #e6c591);
+}
+.reveal-fan .achievement .card-footer {
+  display: none;
+}
+.reveal-announcement {
+  min-height: 3em;
+}
+.import-steps {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.import-steps span {
+  flex: 1;
+  border-bottom: 2px solid var(--border);
+  padding: 12px 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.import-steps .current {
+  color: #9f4029;
+  border-color: var(--primary);
+  font-weight: 650;
+}
+.import-confirm {
+  padding: 16px;
+  background: #fbfaf7f5;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.import-counts strong {
+  font-variant-numeric: tabular-nums;
+}
+.review-list .section-heading {
+  align-items: start;
+}
+.review-list .section-heading h3 {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.review-list .section-heading > span {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: var(--secondary);
+}
+.form-success {
+  border: 1px solid #b4d2c1;
+  border-radius: 12px;
+  background: #f0f8f2;
+  padding: 16px;
+}
+.form-success a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+}
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+select {
+  text-overflow: ellipsis;
+}
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: none) {
+  .achievement:hover {
+    transform: none;
+  }
+  .achievement:active {
+    transform: scale(0.985);
+  }
+}
+@media (hover: hover) {
+  .achievement:hover {
+    border-color: var(--card-tone);
+  }
+}
+@media (max-width: 767px) {
+  main {
+    padding-bottom: calc(110px + env(safe-area-inset-bottom));
+  }
+  .topbar {
+    padding-bottom: 18px;
+  }
+  .page-header {
+    margin-bottom: 26px;
+  }
+  .page-header > p:last-child {
+    font-size: 0.95rem;
+  }
+  .demo-strip {
+    font-size: 0.65rem;
+  }
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 4px 3px 10px;
+    margin-left: -3px;
+    margin-right: -3px;
+    scrollbar-width: thin;
+  }
+  .chips > a,
+  .chips > button {
+    flex-shrink: 0;
+  }
+  .rewards-notice {
+    padding: 16px;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .rewards-notice strong {
+    font-size: 0.95rem;
+  }
+  .rewards-notice p {
+    font-size: 0.78rem;
+  }
+  .achievement .rarity {
+    top: 9px;
+    left: 9px;
+    padding: 5px 6px;
+    font-size: 0.52rem;
+  }
+  .achievement .card-caption {
+    padding: 13px 12px 10px;
+  }
+  .achievement .card-caption h3 {
+    font-size: 1.1rem;
+  }
+  .achievement .card-caption p {
+    font-size: 0.72rem;
+  }
+  .hero-card .card-caption h3 {
+    font-size: 1.5rem;
+  }
+  .hero-card .art {
+    aspect-ratio: 1.3;
+  }
+  .hero-card .card-footer {
+    margin-top: 10px;
+  }
+  .card-stamp {
+    font-size: 0.46rem;
+    left: 10px;
+    bottom: 10px;
+  }
+  .detail-grid {
+    gap: 28px;
+  }
+  .detail-grid > .achievement {
+    width: min(100%, 320px);
+    margin: 16px auto 0;
+  }
+  .detail-copy h1 {
+    font-size: 2.4rem;
+  }
+  .detail-copy .panel {
+    padding: 20px;
+  }
+  .bottom-nav {
+    background: #fffefa;
+    border-top: 1px solid #e5e1d9;
+  }
+  .bottom-nav a {
+    min-height: 56px;
+    border-radius: 12px;
+  }
+  .bottom-nav a.active {
+    background: #fff0e8;
+  }
+  .reveal-toolbar {
+    position: sticky;
+    top: 0;
+    background: #fbfaf7f5;
+    z-index: 5;
+    padding-top: calc(8px + env(safe-area-inset-top));
+    padding-bottom: 8px;
+  }
+  .reveal-heading h1 {
+    font-size: clamp(2rem, 8vw, 2.5rem);
+  }
+  .reveal-fan {
+    height: 320px;
+  }
+  .reveal-art-stage {
+    min-height: 360px;
+    width: min(270px, 100%);
+  }
+  .card-back {
+    min-height: 360px;
+  }
+  .reveal-shell main {
+    min-height: 100svh;
+  }
+  .reveal-page {
+    overflow-x: clip;
+  }
+  .import-confirm {
+    margin-top: 20px;
+  }
+  .import-confirm > button {
+    flex-basis: 100%;
+    white-space: normal;
+  }
+  .review-list .padded {
+    padding: 18px;
+  }
+  .dropzone {
+    padding: 28px 20px;
+  }
+  .dropzone button {
+    width: 100%;
+  }
+  .field-label input,
+  .field-label select,
+  .field-label textarea,
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  .consent {
+    min-height: 44px;
+    align-items: start;
+  }
+  .consent input {
+    min-width: 20px;
+    min-height: 20px;
+    margin-top: 3px;
+  }
+}
+@keyframes stage-enter {
+  from {
+    opacity: 0.5;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .single-reveal {
+    animation: none;
+  }
+  .achievement {
+    transition: none;
+  }
+  .achievement:active {
+    transform: none;
+  }
+}
+
+.review-jump {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #9f4029;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+#import-review {
+  scroll-margin-top: 24px;
+}

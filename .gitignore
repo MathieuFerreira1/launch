@@ -12,3 +12,6 @@ coverage/
 
 __pycache__/
 *.pyc
+
+test-results-webkit/
+playwright-report-webkit/

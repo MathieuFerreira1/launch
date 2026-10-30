@@ -28,8 +28,11 @@ export default defineConfig({
   },
   projects: [360, 375, 390, 430]
     .map((width) => ({
-      name: `mobile-${width}`,
+      name: `${process.env.LAUNCH_WEBKIT ? "webkit-" : ""}mobile-${width}`,
       use: {
+        ...(process.env.LAUNCH_WEBKIT
+          ? { browserName: "webkit" as const, launchOptions: {} }
+          : {}),
         viewport: { width, height: 844 },
         deviceScaleFactor: 1,
         isMobile: true,

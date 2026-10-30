@@ -198,8 +198,10 @@ test("private collections, rare initial reveal, interrupted progress, skip and n
   await expect(
     page.locator(".single-reveal.legendary.is-revealed"),
   ).toBeVisible();
+  const readsBefore = server.manifestCalls();
   await page.getByRole("button", { name: "Continuer", exact: true }).click();
   await expect(page.getByText("Carte 2 / 7", { exact: true })).toBeVisible();
+  expect(server.manifestCalls()).toBe(readsBefore);
   await page.reload();
   await expect(page.getByText("Carte 2 / 7", { exact: true })).toBeVisible();
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -243,4 +245,52 @@ test("processing exposes bounded progress and recovers without reading a stale c
     page.getByRole("link", { name: "Découvrir mes cartes", exact: true }),
   ).toBeVisible();
   expect(server.manifestCalls()).toBeGreaterThan(0);
+});
+
+test("mobile polish: locked goals, all sports, touch targets and reduced motion", async ({
+  page,
+}, info) => {
+  await backend(page);
+  await login(page);
+  for (const sport of ["running", "trail", "cycling", "swimming"]) {
+    await page.goto(`/collections/${sport}`);
+    await expect(page.locator(".account-card-grid .achievement")).toHaveCount(
+      6,
+    );
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+    const image = page.locator(".account-card-grid img").first();
+    await expect(image).toHaveJSProperty("complete", true);
+    if (sport !== "running")
+      await expect(page.locator(".account-card-grid .locked")).toHaveCount(6);
+    if (info.project.name.endsWith("390"))
+      await page.screenshot({
+        path: info.outputPath(`${sport}-polish.png`),
+        fullPage: true,
+      });
+  }
+  await page.locator(".account-card-grid .achievement").first().click();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator(".detail-grid > article")).toHaveCount(1);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  expect(
+    await page
+      .locator(".detail-grid > .achievement")
+      .evaluate((e) => getComputedStyle(e).transitionDuration),
+  ).toBe("0s");
+  if (info.project.name.endsWith("390"))
+    await page.screenshot({
+      path: info.outputPath("card-detail-polish.png"),
+      fullPage: true,
+    });
+  if (info.project.name !== "desktop") {
+    for (const item of await page.locator(".bottom-nav a").all()) {
+      const box = await item.boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+    }
+  }
 });
