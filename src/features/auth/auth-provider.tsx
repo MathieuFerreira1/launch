@@ -4,6 +4,7 @@ import type { Session } from "@supabase/supabase-js";
 import { getSupabaseClient, publicConfig } from "@/lib/supabase";
 import { AuthContext } from "./auth-context";
 import { authError } from "./errors";
+import { clearOwnedDrafts } from "../imports/local-store";
 export function AuthProvider({ children }: { children: ReactNode }) {
   const cache = useQueryClient();
   const [session, setSession] = useState<Session | null>(null);
@@ -72,6 +73,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         scope: "local",
       });
       if (error) throw error;
+      const owner = session?.user.id;
+      if (owner) {
+        try {
+          await clearOwnedDrafts(owner);
+        } catch {
+          /* Browser storage may be unavailable; server logout still completes. */
+        }
+      }
       cache.clear();
       setSession(null);
       setRecovery(false);

@@ -15,7 +15,10 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "npm run dev -- --host 127.0.0.1",
+    // Test the production bundle/Worker. Development HMR can interrupt an import
+    // when another test writes screenshots or the dependency optimizer reloads.
+    command:
+      "npm run build && npm run preview -- --host 127.0.0.1 --port 5173 --strictPort",
     url: "http://127.0.0.1:5173",
     reuseExistingServer: false,
     env: {

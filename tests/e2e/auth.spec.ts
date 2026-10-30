@@ -86,7 +86,7 @@ test("connexion, profil réel, restauration et déconnexion", async ({
   await page.goto("/auth");
   if (test.info().project.name === "mobile-390")
     await page.screenshot({
-      path: "docs/screenshots/auth-login.png",
+      path: test.info().outputPath("auth-login.png"),
       fullPage: true,
     });
   await page.getByLabel("Adresse email").fill("alex@example.test");
@@ -104,7 +104,7 @@ test("connexion, profil réel, restauration et déconnexion", async ({
   await expect(page.getByLabel("Nom affiché")).toHaveValue("Alex");
   if (test.info().project.name === "mobile-390")
     await page.screenshot({
-      path: "docs/screenshots/auth-profile.png",
+      path: test.info().outputPath("auth-profile.png"),
       fullPage: true,
     });
   await page.getByLabel("Nom affiché").fill("Alexandre");
@@ -141,7 +141,7 @@ test("inscription email, récupération neutre et lien expiré", async ({
   await page.goto("/auth/signup");
   if (test.info().project.name === "mobile-390")
     await page.screenshot({
-      path: "docs/screenshots/auth-signup.png",
+      path: test.info().outputPath("auth-signup.png"),
       fullPage: true,
     });
   await page.getByLabel("Nom affiché").fill("Alex");

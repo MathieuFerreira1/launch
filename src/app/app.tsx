@@ -35,6 +35,13 @@ import {
   ActivitiesPage,
   ActivityPage,
 } from "@/features/activities/activities-page";
+import { SourcesPage } from "@/features/activities/sources-page";
+import { BulkImportPage } from "@/features/imports/bulk-import-page";
+import {
+  AccountActivities,
+  AccountActivity,
+  ManualActivity,
+} from "@/features/activities/account-activities";
 import { ImportPage } from "@/features/imports/import-page";
 import { ProfilePage } from "@/features/profile/profile-page";
 import { useDemoData } from "@/lib/demo";
@@ -95,7 +102,7 @@ function Shell() {
       </header>
       <div className="demo-strip">
         {session
-          ? "Compte connecté · Cartes et activités de démonstration."
+          ? "Compte connecté · Historique privé · Cartes de démonstration."
           : "Un aperçu de Launch. Données fictives, vrais objectifs."}
         <ArrowUpRight size={13} />
       </div>
@@ -146,22 +153,57 @@ function DemoGuard() {
   );
 }
 function DataRoutes() {
+  const { session } = useAuth();
   const q = useDemoData();
   if (q.isPending) return <LoadingState />;
   if (q.isError) return <InlineError retry={() => void q.refetch()} />;
   return (
     <Routes>
+      <Route
+        path="/activities/sources"
+        element={session ? <SourcesPage /> : <Navigate to="/auth" replace />}
+      />
+      <Route
+        path="/demo/activities/:id"
+        element={<ActivityPage data={q.data} />}
+      />
       <Route path="/app" element={<HomePage data={q.data} />} />
       <Route path="/collections" element={<CollectionsPage data={q.data} />} />
       <Route
         path="/collections/:sportSlug"
         element={<CollectionsPage data={q.data} />}
       />
-      <Route path="/cards/:cardId" element={<CardPage data={q.data} />} />
-      <Route path="/activities" element={<ActivitiesPage data={q.data} />} />
-      <Route path="/activities/:id" element={<ActivityPage data={q.data} />} />
-      <Route path="/activities/import" element={<ImportPage />} />
-      <Route path="/import" element={<ImportPage />} />
+      <Route
+        path="/cards/:cardId"
+        element={
+          <CardPage
+            data={q.data}
+            activityBasePath={session ? "/demo/activities" : "/activities"}
+          />
+        }
+      />
+      <Route
+        path="/activities"
+        element={
+          session ? <AccountActivities /> : <ActivitiesPage data={q.data} />
+        }
+      />
+      <Route
+        path="/activities/new"
+        element={session ? <ManualActivity /> : <Navigate to="/auth" replace />}
+      />
+      <Route
+        path="/activities/:id"
+        element={session ? <AccountActivity /> : <ActivityPage data={q.data} />}
+      />
+      <Route
+        path="/activities/import"
+        element={session ? <BulkImportPage /> : <ImportPage />}
+      />
+      <Route
+        path="/import"
+        element={session ? <BulkImportPage /> : <ImportPage />}
+      />
       <Route path="/profile" element={<ProfilePage data={q.data} />} />
       <Route
         path="*"
