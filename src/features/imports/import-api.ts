@@ -13,36 +13,24 @@ import {
   removeDraft,
   updateMeta,
 } from "./local-store";
-export class ImportFailure extends Error {
-  constructor(public code: string) {
-    super(code);
+import {
+  ImportFailure,
+  missingStorageObject,
+  requestFailure,
+  type ImportOperation,
+} from "./import-errors";
+export { ImportFailure, importError } from "./import-errors";
+async function rpc<T>(
+  name: ImportOperation,
+  args: Record<string, unknown>,
+): Promise<T> {
+  try {
+    const { data, error, status } = await getSupabaseClient().rpc(name, args);
+    if (error) throw requestFailure(name, error, status);
+    return data as T;
+  } catch (error) {
+    throw requestFailure(name, error);
   }
-}
-export function importError(e: unknown) {
-  const code =
-    e instanceof ImportFailure
-      ? e.code
-      : typeof e === "object" && e !== null && "message" in e
-        ? String(e.message)
-        : "";
-  if (code.includes("DUPLICATE_REVIEW_REQUIRED"))
-    return "Un doublon probable est apparu. Vérifie les choix puis confirme à nouveau.";
-  if (code.includes("SOURCE_QUOTA_EXCEEDED"))
-    return "Le plafond technique de sources privées (1 Go) est atteint. Supprime des sources ou importe sans les conserver.";
-  if (code.includes("ABORT"))
-    return "Import interrompu. Tu peux le reprendre ici.";
-  if (
-    code.includes("LIMITE") ||
-    code.includes("TROP_") ||
-    code.includes("VOLUMINEUSE")
-  )
-    return "Limite de sécurité atteinte. Divise ton historique en plusieurs sélections plus petites.";
-  return "L’opération n’a pas abouti. Vérifie ta connexion et reprends l’import. Aucune activité déjà enregistrée ne sera ajoutée deux fois.";
-}
-async function rpc<T>(name: string, args: Record<string, unknown>): Promise<T> {
-  const { data, error } = await getSupabaseClient().rpc(name, args);
-  if (error) throw new ImportFailure(error.message);
-  return data as T;
 }
 export async function reviewDuplicates(
   items: ImportCandidate[],
@@ -95,7 +83,7 @@ export async function reviewDuplicates(
   }
   return result;
 }
-async function uploadSource(
+export async function uploadSource(
   owner: string,
   file: SourceFile,
   path: string,
@@ -103,19 +91,53 @@ async function uploadSource(
 ) {
   const client = getSupabaseClient();
   const storage = client.storage.from("sport-sources");
-  const existing = await storage.info(path);
-  if (existing.data) return;
   if (signal.aborted) throw new ImportFailure("ABORT");
-  const blob = new Blob([file.bytes], { type: "application/octet-stream" });
-  if (blob.size <= 6 * 1024 * 1024) {
-    const { error } = await storage.upload(path, blob, {
-      contentType: "application/octet-stream",
-      upsert: false,
-    });
-    if (error && !(await storage.info(path)).data)
-      throw new ImportFailure("UPLOAD_FAILED");
+  async function exists() {
+    try {
+      const { data, error } = await storage.info(path);
+      if (error) {
+        if (missingStorageObject(error)) return false;
+        throw requestFailure("source.info", error);
+      }
+      if (!data) throw new ImportFailure("REQUEST_FAILED", "source.info");
+      if (data.size !== file.bytes.byteLength)
+        throw new ImportFailure("SOURCE_SIZE_MISMATCH", "source.info");
+      return true;
+    } catch (error) {
+      throw requestFailure("source.info", error);
+    }
+  }
+  if (await exists()) return;
+  if (signal.aborted) throw new ImportFailure("ABORT");
+  if (file.bytes.byteLength <= 6 * 1024 * 1024) {
+    let error;
+    try {
+      // Blob becomes multipart/form-data in storage-js: its envelope inflates
+      // Storage's preflight contentLength and fails our exact reserved-size RLS.
+      // ArrayBuffer sends the source bytes directly, without relaxing the policy.
+      ({ error } = await storage.upload(path, file.bytes, {
+        contentType: "application/octet-stream",
+        upsert: false,
+      }));
+    } catch (cause) {
+      error = cause;
+    }
+    if (signal.aborted) throw new ImportFailure("ABORT");
+    if (error) {
+      const failure = requestFailure("source.upload", error);
+      // Reconcile a concurrent upload or a lost response, never overwrite it.
+      if (
+        failure.status === 409 ||
+        failure.code === "NETWORK_ERROR" ||
+        failure.code === "SERVICE_UNAVAILABLE"
+      ) {
+        if (await exists().catch(() => false)) return;
+      }
+      throw failure;
+    }
     return;
   }
+  const blob = new Blob([file.bytes], { type: "application/octet-stream" });
   await new Promise<void>((resolve, reject) => {
     const upload = new Upload(blob, {
       endpoint: `${publicConfig!.url}/storage/v1/upload/resumable`,
@@ -131,16 +153,29 @@ async function uploadSource(
         cacheControl: "0",
       },
       onBeforeRequest: async (req) => {
-        const { data } = await client.auth.getSession();
+        const { data, error } = await client.auth.getSession();
+        if (error || !data.session)
+          throw new ImportFailure("AUTH_REQUIRED", "source.resume");
         req.setHeader(
           "Authorization",
           `Bearer ${data.session?.access_token ?? ""}`,
         );
         req.setHeader("apikey", publicConfig!.key);
       },
-      onError: () => {
+      onError: (error) => {
         signal.removeEventListener("abort", abort);
-        reject(new ImportFailure("UPLOAD_FAILED"));
+        const response =
+          "originalResponse" in error ? error.originalResponse : undefined;
+        let reason: unknown =
+          "causingError" in error && error.causingError
+            ? error.causingError
+            : error;
+        try {
+          reason = JSON.parse(response?.getBody() ?? "null") ?? reason;
+        } catch {
+          /* Never expose raw TUS bodies/URLs. */
+        }
+        reject(requestFailure("source.resume", reason, response?.getStatus()));
       },
       onSuccess: () => {
         signal.removeEventListener("abort", abort);
@@ -159,7 +194,10 @@ async function uploadSource(
         if (previous[0]) upload.resumeFromPreviousUpload(previous[0]);
         upload.start();
       })
-      .catch(() => reject(new ImportFailure("UPLOAD_FAILED")));
+      .catch((error: unknown) => {
+        signal.removeEventListener("abort", abort);
+        reject(requestFailure("source.resume", error));
+      });
   });
 }
 export async function commitDraft(
@@ -179,12 +217,12 @@ export async function commitDraft(
   // Paginate receipts; PostgREST returns at most 1000 rows by default.
   const done = new Set<string>();
   for (let offset = 0; ; offset += 1000) {
-    const { data, error } = await client
+    const { data, error, status } = await client
       .from("import_items")
       .select("source_key")
       .eq("batch_id", draft.id)
       .range(offset, offset + 999);
-    if (error) throw error;
+    if (error) throw requestFailure("import.receipts", error, status);
     for (const r of data ?? []) done.add(r.source_key as string);
     if ((data?.length ?? 0) < 1000) break;
   }
@@ -199,7 +237,8 @@ export async function commitDraft(
     for (const item of group) {
       if (item.decision === "skip" || sources.has(item.fileHash)) continue;
       const source = await getSource(draft.id, item.fileHash);
-      if (!source) throw new ImportFailure("LOCAL_SOURCE_MISSING");
+      if (!source)
+        throw new ImportFailure("LOCAL_SOURCE_MISSING", "local.source");
       const f = await rpc<{ storage_path: string; retained: boolean }>(
         "reserve_activity_file",
         {
@@ -229,7 +268,8 @@ export async function commitDraft(
   const status = await rpc<string>("finish_activity_import", {
     p_batch: draft.id,
   });
-  if (status !== "completed") throw new ImportFailure("PARTIAL");
+  if (status !== "completed")
+    throw new ImportFailure("PARTIAL", "finish_activity_import");
   await removeDraft(draft.id);
   draft.stage = "completed";
 }

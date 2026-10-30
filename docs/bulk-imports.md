@@ -14,6 +14,8 @@ Les comptes connectés utilisent désormais les activités réelles ; la démo s
 
 Aucun parseur ni nouveau service permanent côté Cloudflare. Le SDK FIT officiel sert uniquement à lire des fichiers ; aucune connexion Garmin. Licence complète distribuée dans `public/licenses/fit-sdk.txt`. ZIP.js et fast-xml-parser conservent leurs licences de dépendances.
 
+Voir la [correction de l’upload des sources](import-upload-fix.md) pour le contrôle de taille multipart, les erreurs par étape et le test navigateur réel avec conservation des originaux.
+
 ## Parcours utilisateur
 
 1. Se connecter, ouvrir **+ Activité** / `/import`.
